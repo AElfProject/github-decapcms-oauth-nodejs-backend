@@ -10,8 +10,8 @@
 name: Publish Docker image
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
 
 jobs:
   push_to_registry:
@@ -54,3 +54,27 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Set short git commit SHA
+        id: vars
+        run: |
+          calculatedSha=$(git rev-parse --short ${{ github.sha }})
+          echo "short_sha=$calculatedSha" >> "$GITHUB_OUTPUT"
+        
+      - name: Deploy
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.WORKFLOW_DISPATCH }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'poc-aaa',
+              repo: 'devops',
+              workflow_id: 'deploy.yaml',
+              ref: 'main',
+              inputs: {
+                env: 'development',
+                appName: 'docs-oauth',
+                appProject: 'factory',
+                commit_sha: 'sha-${{ steps.vars.outputs.short_sha }}',
+              }
+            })
