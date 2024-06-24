@@ -25,12 +25,22 @@ const generateCSRFToken = () => {
   return crypto.randomUUID().replaceAll("-", "");
 };
 
-const outputHTML = ({ provider = "unknown", token, error, errorCode }) => {
+const generateNonce = () => {
+  return generateCSRFToken();
+};
+
+const outputHTML = ({
+  provider = "unknown",
+  token,
+  error,
+  errorCode,
+  nonce,
+}) => {
   const state = error ? "error" : "success";
   const content = error ? { provider, error, errorCode } : { provider, token };
 
   return `
-    <!doctype html><html><head><meta charset="utf-8"><title>OAuth Response</title></head><body><script>
+    <!doctype html><html><head><meta charset="utf-8"><title>OAuth Response</title></head><body><script nonce="${nonce}">
       (() => {
         window.addEventListener('message', ({ data, origin }) => {
           if (data === 'authorizing:${provider}') {
@@ -222,8 +232,16 @@ app.get(["/callback"], async (req, res) => {
     return;
   }
 
-  const html = outputHTML({ provider, token, error });
-  res.set(securityHeaders).send(html);
+  const nonce = generateNonce();
+
+  const html = outputHTML({ provider, token, error, nonce });
+  res
+    .set(
+      Object.assign({}, securityHeaders, {
+        "Content-Security-Policy": `default-src 'self' 'nonce-${nonce}'`,
+      })
+    )
+    .send(html);
 });
 
 const PORT = process.env.PORT || 3000;
