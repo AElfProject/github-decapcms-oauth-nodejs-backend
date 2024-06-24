@@ -15,13 +15,7 @@ This project is an Express server that handles OAuth authentication for GitHub +
 
 ## Installation
 
-1. Clone the repository:
-
-```sh
-git clone https://github.com/your-username/github-oauth-authenticator.git
-cd github-oauth-authenticator
-```
-
+1. Clone the repository.
 2. Install the dependencies:
 
 ```sh
