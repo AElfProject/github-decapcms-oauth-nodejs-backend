@@ -86,3 +86,4 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 - [Express](https://expressjs.com/)
 - [Node.js](https://nodejs.org/)
 - [GitHub OAuth](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)
+- [Sveltia CMS Auth](https://github.com/sveltia/sveltia-cms-auth)
