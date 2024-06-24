@@ -121,9 +121,7 @@ app.get(["/auth"], (req, res) => {
 app.get(["/callback"], async (req, res) => {
   const { code, state } = req.query;
   const csrfTokenCookie = req.cookies["csrf-token"];
-  console.log(csrfTokenCookie);
-  const [provider, csrfToken] =
-    csrfTokenCookie?.match(/([a-z-]+?)_([0-9a-f]{32})/) ?? [];
+  const [provider, csrfToken] = csrfTokenCookie?.split("_") ?? [];
 
   if (!provider || !supportedProviders.includes(provider)) {
     const html = outputHTMLError({
