@@ -1,10 +1,8 @@
 import express from "express";
 import { URLSearchParams } from "url";
 import crypto from "node:crypto";
-import cookieParser from "cookie-parser";
 
 const app = express();
-app.use(cookieParser());
 
 const supportedProviders = ["github"];
 
@@ -22,7 +20,7 @@ const logError = (message, error) => {
 };
 
 const generateCSRFToken = () => {
-  return crypto.randomUUID().replaceAll("-", "") + Date.now();
+  return crypto.randomUUID().replaceAll("-", "");
 };
 
 const outputHTML = ({ provider = "unknown", token, error, errorCode }) => {
@@ -120,9 +118,10 @@ app.get(["/auth"], (req, res) => {
 
 app.get(["/callback"], async (req, res) => {
   const { code, state } = req.query;
-  const csrfTokenCookie = req.cookies["csrf-token"];
+  const { headers } = req;
   const [, provider, csrfToken] =
-    csrfTokenCookie?.match(/\bcsrf-token=([a-z-]+?)_([0-9a-f]{32})\b/) ?? [];
+    headers.get("Cookie")?.match(/\bcsrf-token=([a-z-]+?)_([0-9a-f]{32})\b/) ??
+    [];
 
   if (!provider || !supportedProviders.includes(provider)) {
     const html = outputHTMLError({
